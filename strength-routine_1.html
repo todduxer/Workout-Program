@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strength Routine</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --panel: #161616;
+    --border: #2a2a2a;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #666;
+    --done-bg: #1a1f0a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  .hero {
+    background: linear-gradient(135deg, #111 0%, #1a1a0a 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 36px 32px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: 'STRENGTH';
+    position: absolute;
+    right: -20px; top: -10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px;
+    color: rgba(232,255,71,0.04);
+    letter-spacing: 4px;
+    pointer-events: none;
+  }
+  .hero-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 8vw, 72px);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .hero-meta {
+    margin-top: 14px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: rgba(232,255,71,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .badge.orange {
+    background: rgba(255,107,53,0.1);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* WEEK PROGRESS */
+  .week-bar {
+    display: flex;
+    gap: 0;
+    margin: 28px 32px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .week-day {
+    flex: 1;
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .week-day:last-child { border-right: none; }
+  .week-day.active {
+    background: var(--accent);
+    color: #000;
+  }
+  .week-day.rest {
+    background: #111;
+    color: #333;
+  }
+
+  /* MAIN LAYOUT */
+  .main { padding: 0 32px; margin-top: 32px; }
+
+  .day-section {
+    display: none;
+  }
+  .day-section.visible { display: block; }
+
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+  .day-focus {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .day-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    margin-bottom: 24px;
+  }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  /* EXERCISE CARDS */
+  .exercise-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .exercise-card.completed {
+    background: var(--done-bg);
+    border-color: rgba(232,255,71,0.3);
+  }
+  .exercise-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+  }
+  .ex-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--border);
+    width: 28px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+  .exercise-card.completed .ex-num { color: var(--accent); }
+  .ex-info { flex: 1 }
+  .ex-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .ex-sets {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .ex-muscle {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.2);
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .ex-check {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .ex-check svg { opacity: 0; transition: opacity 0.2s; }
+  .exercise-card.completed .ex-check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .exercise-card.completed .ex-check svg { opacity: 1; }
+
+  /* DETAIL PANEL */
+  .ex-detail {
+    display: none;
+    padding: 0 18px 18px 60px;
+    border-top: 1px solid var(--border);
+  }
+  .ex-detail.open { display: block; }
+  .ex-detail-inner { padding-top: 14px; }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .detail-stat {
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+  }
+  .detail-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .detail-stat-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+  .tips-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .tip-item {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .tip-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  /* COMPLETE BTN */
+  .complete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .complete-btn:hover { opacity: 0.85; }
+  .exercise-card.completed .complete-btn {
+    background: var(--done-bg);
+    color: var(--accent);
+    border: 1px solid rgba(232,255,71,0.3);
+  }
+
+  /* REST DAY */
+  .rest-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .rest-icon { font-size: 48px; margin-bottom: 12px; }
+  .rest-card h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .rest-card p { color: var(--muted); font-size: 14px; margin-top: 8px; line-height: 1.6; }
+
+  /* LEGEND */
+  .legend {
+    margin: 32px 32px 0;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  .ex-muscle.arm-tag {
+    background: rgba(138,92,255,0.12);
+    border-color: rgba(138,92,255,0.4);
+    color: #a97bff;
+  }
+  .exercise-card.arm-card {
+    border-left: 3px solid #8a5cff;
+  }
+  .exercise-card.arm-card.completed {
+    border-left-color: var(--accent);
+  }
+  .arm-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 12px;
+  }
+  .arm-divider-line { flex:1; height:1px; background: rgba(138,92,255,0.25); }
+  .arm-divider-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #a97bff;
+    white-space: nowrap;
+  }
+    .hero, .main, .week-bar, .legend { padding-left: 16px; padding-right: 16px; }
+    .week-bar { margin-left: 16px; margin-right: 16px; }
+    .legend { margin-left: 16px; margin-right: 16px; }
+    .detail-grid { grid-template-columns: repeat(3,1fr); }
+    .ex-muscle { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">4-Day Program</div>
+  <h1>Muscle &amp;<br>Strength</h1>
+  <div class="hero-meta">
+    <span class="badge">Intermediate</span>
+    <span class="badge orange">4 Days / Week</span>
+    <span class="badge">Upper / Lower Split</span>
+  </div>
+</div>
+
+<div class="week-bar" id="weekBar">
+  <div class="week-day active" onclick="showDay('A')">MON<br><small>Upper A</small></div>
+  <div class="week-day" onclick="showDay('B')">TUE<br><small>Lower A</small></div>
+  <div class="week-day rest" onclick="showDay('rest1')">WED<br><small>Rest</small></div>
+  <div class="week-day" onclick="showDay('C')">THU<br><small>Upper B</small></div>
+  <div class="week-day" onclick="showDay('D')">FRI<br><small>Lower B</small></div>
+  <div class="week-day rest" onclick="showDay('rest2')">SAT<br><small>Rest</small></div>
+  <div class="week-day rest" onclick="showDay('rest3')">SUN<br><small>Rest</small></div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div> Not started</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Completed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Muscle group</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8a5cff"></div> Arms finisher</div>
+  <span style="margin-left:auto;font-size:12px;color:var(--muted)">Click any exercise to expand</span>
+</div>
+
+<div class="main">
+
+  <!-- DAY A: Upper Strength -->
+  <div class="day-section visible" id="day-A">
+    <div class="day-header">
+      <div class="day-name">Monday</div>
+      <div class="day-focus">Upper Body — Strength Focus</div>
+    </div>
+    <div class="day-desc">Heavy compound lifts first. Rest 2–3 min on big lifts, 60–90 sec on accessories. <strong style="color:var(--accent)">Arms Finisher</strong> at the end — biceps + triceps.</div>
+    <div class="progress-wrap">
+      <div class="progress-top"><span>Progress</span><span id="prog-A">0 / 5 exercises</span></div>
+      <div class="progress-track"><div class="progress-fill" id="fill-A"></div></div>
+    </div>
+    <div id="exercises-A">
+      <!-- exercises injected by JS -->
+    </div>
+  </div>
+
+  <!-- DAY B: Lower Strength -->
+  <div class="day-section" id="day-B">
+    <div class="day-header">
+      <div class="day-name">Tuesday</div>
+      <div class="day-focus">Lower Body — Strength Focus</div>
+    </div>
+    <div class="day-desc">Squat and hinge patterns. Prioritize depth and form over load. Rest 2–3 min on heavy sets.</div>
+    <div class="progress-wrap">
+      <div class="progress-top"><span>Progress</span><span id="prog-B">0 / 5 exercises</span></div>
+      <div class="progress-track"><div class="progress-fill" id="fill-B"></div></div>
+    </div>
+    <div id="exercises-B"></div>
+  </div>
+
+  <!-- REST 1 -->
+  <div class="day-section" id="day-rest1">
+    <div class="rest-card">
+      <div class="rest-icon">🧘</div>
+      <h2>Wednesday — Rest Day</h2>
+      <p>Recovery is where muscle is built. Stay active with a light walk, stretching, or mobility work. Aim for 7–9 hrs of sleep and hit your protein goal.</p>
+    </div>
+  </div>
+
+  <!-- DAY C: Upper Hypertrophy -->
+  <div class="day-section" id="day-C">
+    <div class="day-header">
+      <div class="day-name">Thursday</div>
+      <div class="day-focus">Upper Body — Hypertrophy Focus</div>
+    </div>
+    <div class="day-desc">More volume, moderate weight. Control the eccentric. <strong style="color:var(--accent)">Arms Finisher</strong> at the end — different angles than Monday for full development.</div>
+    <div class="progress-wrap">
+      <div class="progress-top"><span>Progress</span><span id="prog-C">0 / 5 exercises</span></div>
+      <div class="progress-track"><div class="progress-fill" id="fill-C"></div></div>
+    </div>
+    <div id="exercises-C"></div>
+  </div>
+
+  <!-- DAY D: Lower Hypertrophy -->
+  <div class="day-section" id="day-D">
+    <div class="day-header">
+      <div class="day-name">Friday</div>
+      <div class="day-focus">Lower Body — Hypertrophy Focus</div>
+    </div>
+    <div class="day-desc">Single-leg work and hip-dominant movements. Focus on the mind-muscle connection. Rest 60–90 sec.</div>
+    <div class="progress-wrap">
+      <div class="progress-top"><span>Progress</span><span id="prog-D">0 / 5 exercises</span></div>
+      <div class="progress-track"><div class="progress-fill" id="fill-D"></div></div>
+    </div>
+    <div id="exercises-D"></div>
+  </div>
+
+  <!-- REST 2/3 -->
+  <div class="day-section" id="day-rest2">
+    <div class="rest-card">
+      <div class="rest-icon">🏃</div>
+      <h2>Saturday — Active Rest</h2>
+      <p>Optional light cardio (20–30 min walk, bike, or swim). Foam roll tight areas. Prep meals for the week ahead to hit your protein targets.</p>
+    </div>
+  </div>
+  <div class="day-section" id="day-rest3">
+    <div class="rest-card">
+      <div class="rest-icon">💤</div>
+      <h2>Sunday — Full Rest</h2>
+      <p>Full recovery day. Prioritize sleep and nutrition. Review the week — note your PRs and plan next week's progressive overload (add 2.5–5 lbs to main lifts).</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const data = {
+  A: [
+    { name: "Barbell Bench Press", sets: 4, reps: "5", rest: "3 min", muscle: "Chest", tips: ["Arch slightly, feet flat on floor", "Drive through your feet on each rep", "Touch bar to mid-chest, not neck"] },
+    { name: "Bent-Over Barbell Row", sets: 4, reps: "6", rest: "2–3 min", muscle: "Back", tips: ["Hinge at hips, keep back neutral", "Pull to lower abs, not chest", "Control the lowering phase"] },
+    { name: "Seated Overhead Press", sets: 3, reps: "8", rest: "2 min", muscle: "Shoulders", tips: ["Core braced throughout", "Full range of motion overhead", "Don't flare elbows too wide"] },
+    { name: "Incline Dumbbell Press", sets: 3, reps: "10", rest: "90 sec", muscle: "Chest", tips: ["30–45° incline angle", "Squeeze at top, stretch at bottom", "Control the descent (2 sec down)"] },
+    { name: "Cable Face Pulls", sets: 3, reps: "15", rest: "60 sec", muscle: "Rear Delts", tips: ["Pull to forehead level, elbows high", "External rotate at end position", "Light weight, slow reps"] },
+    { name: "💪 EZ Bar Curl", sets: 3, reps: "8–10", rest: "60 sec", muscle: "Biceps", tips: ["Fully extend at the bottom each rep", "Don't swing — keep upper arms pinned", "Squeeze hard at the top, 1 sec pause"], arm: true },
+    { name: "💪 Concentration Curl", sets: 2, reps: "12 each", rest: "45 sec", muscle: "Biceps", tips: ["Elbow braced on inner thigh", "Rotate wrist outward at top for peak contraction", "Slow eccentric — 3 sec down"], arm: true },
+    { name: "💪 Close-Grip Bench Press", sets: 3, reps: "8–10", rest: "90 sec", muscle: "Triceps", tips: ["Hands shoulder-width, not too narrow", "Keep elbows tucked in, not flared", "Triceps do the work — lighten the load"], arm: true },
+    { name: "💪 Skull Crushers (EZ Bar)", sets: 3, reps: "10–12", rest: "60 sec", muscle: "Triceps", tips: ["Lower bar to forehead or just behind head", "Only forearms move — upper arms stay still", "Full extension at top — squeeze triceps"], arm: true },
+  ],
+  B: [
+    { name: "Barbell Back Squat", sets: 4, reps: "5", rest: "3 min", muscle: "Quads", tips: ["Break at hips and knees together", "Knees track over toes", "Hit parallel or below"] },
+    { name: "Romanian Deadlift", sets: 4, reps: "8", rest: "2 min", muscle: "Hamstrings", tips: ["Push hips back, not down", "Feel stretch in hamstrings at bottom", "Keep bar close to body"] },
+    { name: "Leg Press", sets: 3, reps: "10", rest: "90 sec", muscle: "Quads", tips: ["Feet shoulder-width, mid-platform", "Don't lock out knees fully", "Full depth for quad activation"] },
+    { name: "Walking Lunges", sets: 3, reps: "12 each", rest: "90 sec", muscle: "Glutes", tips: ["Long stride for glutes, short for quads", "Front knee stays over ankle", "Keep torso upright"] },
+    { name: "Standing Calf Raise", sets: 4, reps: "12", rest: "60 sec", muscle: "Calves", tips: ["Full stretch at bottom", "Pause at top 1 sec", "Add weight when easy"] },
+  ],
+  C: [
+    { name: "Weighted Pull-Ups", sets: 4, reps: "6–8", rest: "2 min", muscle: "Back", tips: ["Full hang at bottom each rep", "Drive elbows to floor on way up", "Add weight with belt if easy"] },
+    { name: "Dumbbell Shoulder Press", sets: 4, reps: "10", rest: "90 sec", muscle: "Shoulders", tips: ["Neutral grip or pronated, your choice", "Full range overhead", "Don't shrug at top"] },
+    { name: "Flat Dumbbell Flyes", sets: 3, reps: "12", rest: "60 sec", muscle: "Chest", tips: ["Slight bend in elbows (never straight)", "Feel the pec stretch at bottom", "Squeeze at top to contract chest"] },
+    { name: "💪 Incline Dumbbell Curl", sets: 3, reps: "10–12", rest: "60 sec", muscle: "Biceps", tips: ["Lean back on 45° incline for full stretch", "Don't swing — strict form only", "Supinate wrist at top for peak contraction"], arm: true },
+    { name: "💪 Hammer Curl", sets: 3, reps: "12", rest: "60 sec", muscle: "Biceps", tips: ["Neutral grip targets brachialis & brachioradialis", "Alternate arms or do both together", "No body sway — brace core"], arm: true },
+    { name: "💪 Overhead Tricep Extension (DB)", sets: 3, reps: "12", rest: "60 sec", muscle: "Triceps", tips: ["Keep elbows pointed forward, not flared", "Full stretch overhead — long head activation", "Lower slowly behind head, 2–3 sec"], arm: true },
+    { name: "💪 Tricep Rope Pushdown", sets: 3, reps: "15", rest: "60 sec", muscle: "Triceps", tips: ["Flare the rope at the bottom for full extension", "Keep elbows pinned to sides", "Squeeze triceps hard at lockout"], arm: true },
+  ],
+  D: [
+    { name: "Bulgarian Split Squat", sets: 4, reps: "8 each", rest: "2 min", muscle: "Quads / Glutes", tips: ["Rear foot elevated ~knee height", "Front foot far enough forward", "Lower slowly, 2–3 sec eccentric"] },
+    { name: "Barbell Hip Thrust", sets: 4, reps: "10", rest: "90 sec", muscle: "Glutes", tips: ["Bench at mid-shoulder blade height", "Drive hips to full extension", "Pause 1 sec at top"] },
+    { name: "Leg Curl (Machine)", sets: 3, reps: "12", rest: "60 sec", muscle: "Hamstrings", tips: ["Full range, slow eccentric", "Hips stay down on bench", "Don't use momentum"] },
+    { name: "Goblet Squat", sets: 3, reps: "15", rest: "60 sec", muscle: "Quads", tips: ["Hold dumbbell at chest", "Elbows inside knees at bottom", "Great for depth practice"] },
+    { name: "Plank", sets: 3, reps: "45 sec", rest: "45 sec", muscle: "Core", tips: ["Hips level — not sagging or high", "Squeeze glutes and abs together", "Breathe steadily throughout"] },
+  ],
+};
+
+const completedState = {};
+
+function buildExercises(day) {
+  const container = document.getElementById(`exercises-${day}`);
+  if (!container || !data[day]) return;
+  container.innerHTML = '';
+  let armDividerInserted = false;
+  data[day].forEach((ex, i) => {
+    const id = `${day}-${i}`;
+    if (!completedState[id]) completedState[id] = false;
+
+    // Insert arm divider before first arm exercise
+    if (ex.arm && !armDividerInserted) {
+      armDividerInserted = true;
+      const div = document.createElement('div');
+      div.className = 'arm-divider';
+      div.innerHTML = `<div class="arm-divider-line"></div><div class="arm-divider-label">💪 Arms Finisher</div><div class="arm-divider-line"></div>`;
+      container.appendChild(div);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'exercise-card' + (ex.arm ? ' arm-card' : '') + (completedState[id] ? ' completed' : '');
+    card.id = `card-${id}`;
+    const muscleClass = ex.arm ? 'ex-muscle arm-tag' : 'ex-muscle';
+    card.innerHTML = `
+      <div class="exercise-top" onclick="toggleDetail('${id}')">
+        <div class="ex-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-sets">${ex.sets} sets × ${ex.reps} reps &nbsp;·&nbsp; Rest: ${ex.rest}</div>
+        </div>
+        <div class="${muscleClass}">${ex.muscle}</div>
+        <div class="ex-check">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7L5.5 10.5L12 3.5" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ex-detail" id="detail-${id}">
+        <div class="ex-detail-inner">
+          <div class="detail-grid">
+            <div class="detail-stat"><div class="detail-stat-val">${ex.sets}</div><div class="detail-stat-lbl">Sets</div></div>
+            <div class="detail-stat"><div class="detail-stat-val">${ex.reps}</div><div class="detail-stat-lbl">Reps</div></div>
+            <div class="detail-stat"><div class="detail-stat-val">${ex.rest}</div><div class="detail-stat-lbl">Rest</div></div>
+          </div>
+          <div class="tips-title">Form cues</div>
+          ${ex.tips.map(t => `<div class="tip-item">${t}</div>`).join('')}
+          <button class="complete-btn" onclick="toggleComplete('${day}','${id}',event)">
+            ${completedState[id] ? '✓ Completed' : 'Mark Complete'}
+          </button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+  updateProgress(day);
+}
+
+function toggleDetail(id) {
+  const det = document.getElementById(`detail-${id}`);
+  det.classList.toggle('open');
+}
+
+function toggleComplete(day, id, e) {
+  e.stopPropagation();
+  completedState[id] = !completedState[id];
+  buildExercises(day);
+  // Re-open this detail
+  const det = document.getElementById(`detail-${id}`);
+  if (det) det.classList.add('open');
+}
+
+function updateProgress(day) {
+  const total = data[day].length;
+  const done = Object.keys(completedState).filter(k => k.startsWith(day+'-') && completedState[k]).length;
+  document.getElementById(`prog-${day}`).textContent = `${done} / ${total} exercises`;
+  document.getElementById(`fill-${day}`).style.width = `${(done/total)*100}%`;
+}
+
+const dayMap = { A:0, B:1, rest1:2, C:3, D:4, rest2:5, rest3:6 };
+
+function showDay(day) {
+  document.querySelectorAll('.day-section').forEach(d => d.classList.remove('visible'));
+  document.getElementById(`day-${day}`).classList.add('visible');
+  document.querySelectorAll('.week-day').forEach((d,i) => {
+    d.classList.remove('active');
+    if (i === dayMap[day]) d.classList.add('active');
+  });
+}
+
+// Init all days
+['A','B','C','D'].forEach(buildExercises);
+</script>
+</body>
+</html>
